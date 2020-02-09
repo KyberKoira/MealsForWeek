@@ -5,7 +5,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import Settings from './settings.js'
 
-class Header extends React.Component{ //
+class Header extends React.Component{
 	render(){
 		return(
 			<div class="jumbotron">
