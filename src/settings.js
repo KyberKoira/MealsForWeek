@@ -97,11 +97,11 @@ class Meal extends React.Component {
 
   }
   shouldComponentUpdate(nextProps){
-    if (this.props.meal_info.show == false){return false}
+    if (nextProps.meal_info.show == false){return true}
     console.log(nextProps.meal_info.mealCode)
     console.log(this.encryptMeal(this.state.data.type))
     console.log(this.props.meal_info.mealCode)
-    if(nextProps.meal_info.mealCode == 0){return false}
+    if(nextProps.meal_info.mealCode == 0 && nextProps.meal_info.show == false){return false}
     if(this.encryptMeal(this.state.data.type) != nextProps.meal_info.mealCode){
       this.getData(nextProps.meal_info.mealCode)
       return false
@@ -111,7 +111,7 @@ class Meal extends React.Component {
     }
   }
   componentDidMount() {
-    this.getData(this.encryptMeal(this.props.meal_info.mealCode))
+    this.getData(this.props.meal_info.mealCode)
   }
   getData(code) {
     let api_message = null
