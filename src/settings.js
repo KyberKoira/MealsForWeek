@@ -7,8 +7,10 @@ import './index.css';
 class Meal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { meal: null, source: null, type: null, show: true }
+    this.state = { data: null }
+
   }
+
   getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
   }
@@ -17,19 +19,27 @@ class Meal extends React.Component {
       .then(res => res.json())
       .then(
         (result) => {
-          this.setState({
 
-            meal: result["meals"][0]["strMeal"],
-            source: result["meals"][0]["strSource"],
-            type: result["meals"][0]["strCategory"]
-          });
+          this.state.data = {
+              meal: result["meals"][0]["strMeal"],
+              source: result["meals"][0]["strSource"],
+              type: result["meals"][0]["strCategory"]
+          }
+          console.log(this.state.data)
+          this.forceUpdate()
+
+
         },
         (error) => {
           this.setState({
-            meal: "Not Found",
-            source: "Not Found",
-            type: "Not Found"
-          });
+            data: {
+              meal: "Not Found",
+              source: "Not Found",
+              type: "Not Found"
+            }
+
+          }
+        );
         }
       )
   }
@@ -44,27 +54,69 @@ class Meal extends React.Component {
             .then(res => res.json())
             .then(
               (result) => {
-                this.setState({
+                this.state.data = {
+                    meal: result["meals"][0]["strMeal"],
+                    source: result["meals"][0]["strSource"],
+                    type: result["meals"][0]["strCategory"]
+                }
+                this.forceUpdate()
 
-                  meal: result["meals"][0]["strMeal"],
-                  source: result["meals"][0]["strSource"],
-                  type: result["meals"][0]["strCategory"]
-                });
               },
               (error) => {
                 this.setState({
-                  meal: "Not Found",
-                  source: "Not Found",
-                  type: "Not Found"
-                });
+                  data: {
+                    meal: "Not Found",
+                    source: "Not Found",
+                    type: "Not Found"
+                  }
+
+                }
+                );
               }
             )
         }
       )
   }
+  encryptMeal(meal) {
+    switch (meal) {
+      case "Breakfast":
+        return 1;
+
+      case "Lunch":
+        return 2;
+
+      case "Vegetarian":
+        return 3;
+
+      case "Side":
+        return 4;
+
+      default:
+        return 0;
+}
+
+  }
+  shouldComponentUpdate(nextProps){
+    if (this.props.meal_info.show == false){return false}
+    console.log(nextProps.meal_info.mealCode)
+    console.log(this.encryptMeal(this.state.data.type))
+    console.log(this.props.meal_info.mealCode)
+    if(nextProps.meal_info.mealCode == 0){return false}
+    if(this.encryptMeal(this.state.data.type) != nextProps.meal_info.mealCode){
+      this.getData(nextProps.meal_info.mealCode)
+      return false
+    }
+    else {
+      return true
+    }
+  }
   componentDidMount() {
+    this.getData(this.encryptMeal(this.props.meal_info.mealCode))
+  }
+  getData(code) {
     let api_message = null
-    switch (this.props.meal_info.mealCode) {
+    console.log(this.props.meal_info.mealCode)
+    switch (code) {
       case 0: //Full Random
         api_message = "https://www.themealdb.com/api/json/v1/1/random.php"
         this.sendReq(api_message)
@@ -88,22 +140,28 @@ class Meal extends React.Component {
 
     }
   }
+
   render() {
-    if (this.props.meal_info.show == false) {return null}
-    else {
+
+    if (this.props.meal_info.show == true && this.state.data != null) {
+
       return (
         <div class="card-body">
-          <p>{this.state.type}</p>
-          <p>{this.state.meal}</p>
+          <p>{this.state.data.type}</p>
+          <p>{this.state.data.meal}</p>
         </div>
       )}
-        
+    else {
+      return null
       }
-    }
 
-class Day extends React.Component{ //
+  }
+}
+
+class Day extends React.Component{
 	constructor(props){
-		super(props)
+    super(props)
+    this.state = {update: true}
   }
   showMeal(id) {
     if (id <= this.props.day_info.show_meals){ return true }
@@ -111,8 +169,9 @@ class Day extends React.Component{ //
   }
   makeInfo(i) {
     const meal_info = {
-      mealCode: i, show: this.showMeal(i)
+      mealCode: this.props.day_info.meal_types[i-1], show: this.showMeal(i)
     }
+
     return meal_info
   }
 	render(){
@@ -179,15 +238,42 @@ export default class Settings extends React.Component{
       <div class="radio">
         <label><input type="radio" name="optradio" value="Option 2" /> Fish</label>
       </div>
+      <div class="radio">
+        <label><input type="radio" name="optradio" value="Option 3" /> Vegetarian</label>
+      </div>
     </div>)
     this.menu3 = (<div class="col">
       <p>Types:</p>
-      
+      {this.get_type_element(1, this.handleChange_meal_type1)}
+      {this.get_type_element(2, this.handleChange_meal_type2)}
+      {this.get_type_element(3, this.handleChange_meal_type3)}
+      {this.get_type_element(4, this.handleChange_meal_type4)}
     </div>)
     this.state = {
       days: 1,
-      meals: 1
+      meals: 1,
+      type1: 0,
+      type2: 0,
+      type3: 0,
+      type4: 0
     }
+  }
+  get_type_element(i,func) {
+    return (<div class="row">
+      <div>Meal {i}</div>
+      <div class="col">
+        <form>
+          <select onChange={func}>
+            <option>Random</option>
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Vegetarian</option>
+            <option>Side</option>
+          </select>
+        </form>
+      </div>
+
+    </div>)
   }
   handleChange = (event) => {
     this.setState({days: event.target.value})
@@ -195,12 +281,51 @@ export default class Settings extends React.Component{
   handleChange_meals = (event) => {
     this.setState({ meals: event.target.value })
   }
+  encryptMeal(meal) {
+    switch (meal) {
+      case "Breakfast":
+        return 1;
+
+      case "Lunch":
+        return 2;
+
+      case "Vegetarian":
+        return 3;
+
+      case "Side":
+        return 4;
+      default:
+       return 0
+      }
+
+
+  }
+  handleChange_meal_type1 = (event) => {
+    this.setState({ type1: this.encryptMeal(event.target.value) })
+  }
+  handleChange_meal_type2 = (event) => {
+    this.setState({ type2: this.encryptMeal(event.target.value) })
+  }
+  handleChange_meal_type3 = (event) => {
+    this.setState({ type3: this.encryptMeal(event.target.value) })
+  }
+  handleChange_meal_type4 = (event) => {
+    this.setState({ type4: this.encryptMeal(event.target.value) })
+  }
   checkShow(index, showValue) {
     if (index <= showValue) { return true }
     else { return false }
   }
+  makeTypes() {
+    var typeArray = []
+    typeArray.push(this.state.type1)
+    typeArray.push(this.state.type2)
+    typeArray.push(this.state.type3)
+    typeArray.push(this.state.type4)
+    return typeArray;
+  }
   makeInfo(i) {
-    const day_info = { show_day: this.checkShow(i, this.state.days), show_meals: this.state.meals }
+    const day_info = { show_day: this.checkShow(i, this.state.days), show_meals: this.state.meals, meal_types: this.makeTypes() }
     return day_info
   }
   render() {
