@@ -20,7 +20,7 @@ class Footer extends React.Component{
 	render(){
 		return(
 			<div class="footer" >
-			<p> Made by Joel Määttänen</p>
+			<p style={{"font-size": 13 + "px"}}> Made by Joel Määttänen</p>
 			</div>
 		);
 	}

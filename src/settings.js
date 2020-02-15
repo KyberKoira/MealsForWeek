@@ -4,15 +4,24 @@ import 'bootstrap';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 
+function removeA(arr) {
+    var what, a = arguments, L = a.length, ax;
+    while (L > 1 && arr.length) {
+        what = a[--L];
+        while ((ax= arr.indexOf(what)) !== -1) {
+            arr.splice(ax, 1);
+        }
+    }
+    return arr;
+}//Removes elements from array by value
+
 class Meal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { data: null }
-
   }
-
   getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
   sendReq(api_message) {
     fetch(api_message)
@@ -79,21 +88,100 @@ class Meal extends React.Component {
   }
   encryptMeal(meal) {
     switch (meal) {
-      case "Breakfast":
+      case "Random":
+        return 0;
+      case "Beef":
         return 1;
 
-      case "Lunch":
+      case "Breakfast":
         return 2;
 
-      case "Vegetarian":
+      case "Chicken":
         return 3;
 
-      case "Side":
+      case "Dessert":
         return 4;
 
-      default:
-        return 0;
-}
+      case "Goat":
+        return 5;
+
+      case "Lamb":
+        return 6;
+
+      case "Miscellaneous":
+        return 7;
+
+      case "Pasta":
+        return 8;
+
+      case "Pork":
+        return 9;
+
+      case "Seafood":
+        return 10;
+
+      case "Side":
+        return 11;
+
+      case "Starter":
+        return 12;
+
+      case "Vegan":
+        return 13;
+
+      case "Vegetarian":
+        return 14;
+
+      }
+
+  }
+  decryptMeal(meal) {
+    switch (meal) {
+      case 0:
+        return "Random";
+      case 1:
+        return "Beef";
+
+      case 2:
+        return "Breakfast";
+
+      case 3:
+        return "Chicken";
+
+      case 4:
+        return "Dessert";
+
+      case 5:
+        return "Goat";
+
+      case 6:
+        return "Lamb";
+
+      case 7:
+        return "Miscellaneous";
+
+      case 8:
+        return "Pasta";
+
+      case 9:
+        return "Pork";
+
+      case 10:
+        return "Seafood";
+
+      case 11:
+        return "Side";
+
+      case 12:
+        return "Starter";
+
+      case 13:
+        return "Vegan";
+
+      case 14:
+        return "Vegetarian";
+
+      }
 
   }
   shouldComponentUpdate(nextProps){
@@ -112,32 +200,38 @@ class Meal extends React.Component {
   }
   getData(code) {
     let api_message = null
-    console.log(this.props.meal_info.mealCode)
-    switch (code) {
-      case 0: //Full Random
-        api_message = "https://www.themealdb.com/api/json/v1/1/random.php"
-        this.sendReq(api_message)
-        break;
-      case 1: //Random Breakfast
-        api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=Breakfast"
-        this.sendReqWeird(api_message)
-        break;
-      case 2: //Random Lunch
-        api_message = "https://www.themealdb.com/api/json/v1/1/random.php"
-        this.sendReq(api_message)
-        break;
-      case 3: //Vegetarian Lunch
-        api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=Vegetarian"
-        this.sendReqWeird(api_message)
-        break;
-      case 4: //Random side
-        api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=Side"
-        this.sendReqWeird(api_message)
-        break;
+    if(code == 0){
+      if(this.props.meal_info.exclude.includes(true)){
+        let menu = [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+        if(this.props.meal_info.exclude[0] == true){ //Remove meat
+          removeA(menu,1)
+          removeA(menu,3)
+          removeA(menu,5)
+          removeA(menu,6)
+          removeA(menu,9)
+        }
+        if(this.props.meal_info.exclude[1] == true){ //Remove seafood
+          removeA(menu,10)
+        }
+        if(this.props.meal_info.exclude[2] == true){ //Remove seafood
+          removeA(menu,13)
+          removeA(menu,14)
+        }
 
+        let item = menu[Math.floor(Math.random() * menu.length)]
+        api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=".concat(this.decryptMeal(item))
+        this.sendReqWeird(api_message)
+      }
+      else {
+        api_message = "https://www.themealdb.com/api/json/v1/1/random.php"
+        this.sendReq(api_message)
+      }
+    }
+    else {
+      api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=".concat(this.decryptMeal(code))
+      this.sendReqWeird(api_message)
     }
   }
-
   render() {
 
     if (this.props.meal_info.show == true && this.state.data != null) {
@@ -174,7 +268,7 @@ class Day extends React.Component{
 	render(){
     if (this.props.day_info.show_day == true) {
 		return(
-			<div class="col-sm-4">
+			<div class="col-sm-4" style={{"padding": 25 + "px"}}>
 			<div class="card">
 					<div class="card-header">
 						<h4>{this.props.day}</h4>
@@ -223,7 +317,7 @@ export default class Settings extends React.Component{
       </form>
       </div>)
     this.menu2 = (<div class="col">
-      <p>Exclude:</p>
+      <p>Exclude:(Random Only)</p>
       <div class="radio">
         <label><input type="radio" name="meat" onChange={this.handleChangeExclude(1)}/> Meat</label>
       </div>
@@ -260,14 +354,23 @@ export default class Settings extends React.Component{
         <form>
           <select onChange={func}>
             <option>Random</option>
+            <option>Beef</option>
             <option>Breakfast</option>
-            <option>Lunch</option>
-            <option>Vegetarian</option>
+            <option>Chicken</option>
+            <option>Dessert</option>
+            <option>Goat</option>
+            <option>Lamb</option>
+            <option>Miscellaneous</option>
+            <option>Pasta</option>
+            <option>Pork</option>
+            <option>Seafood</option>
             <option>Side</option>
+            <option>Starter</option>
+            <option>Vegan</option>
+            <option>Vegetarian</option>
           </select>
         </form>
       </div>
-
     </div>)
   }
   handleChange = (event) => {
@@ -278,22 +381,51 @@ export default class Settings extends React.Component{
   }
   encryptMeal(meal) {
     switch (meal) {
-      case "Breakfast":
+      case "Random":
+        return 0;
+      case "Beef":
         return 1;
 
-      case "Lunch":
+      case "Breakfast":
         return 2;
 
-      case "Vegetarian":
+      case "Chicken":
         return 3;
 
-      case "Side":
+      case "Dessert":
         return 4;
-      default:
-       return 0
+
+      case "Goat":
+        return 5;
+
+      case "Lamb":
+        return 6;
+
+      case "Miscellaneous":
+        return 7;
+
+      case "Pasta":
+        return 8;
+
+      case "Pork":
+        return 9;
+
+      case "Seafood":
+        return 10;
+
+      case "Side":
+        return 11;
+
+      case "Starter":
+        return 12;
+
+      case "Vegan":
+        return 13;
+
+      case "Vegetarian":
+        return 14;
+
       }
-
-
   }
   handleChange_meal_type1 = (event) => {
     this.setState({ type1: this.encryptMeal(event.target.value) })
@@ -347,7 +479,9 @@ export default class Settings extends React.Component{
     return day_info
   }
   render() {
-    this.body = (<div class="row">
+    this.body = (
+    <div style={{"padding": 25 + "px"}}>
+      <div class="row">
       <Day day="Monday" day_info={this.makeInfo(1)} />
       <Day day="Tuesday" day_info={this.makeInfo(2)} />
       <Day day="Wednesday" day_info={this.makeInfo(3)} />
@@ -355,15 +489,19 @@ export default class Settings extends React.Component{
       <Day day="Friday" day_info={this.makeInfo(5)} />
       <Day day="Saturday" day_info={this.makeInfo(6)} />
       <Day day="Sunday" day_info={this.makeInfo(7)} />
+      </div>
     </div>)
 		return(
-      <div>
+      <div class="else">
         {this.body}
-        <div class="row">
-          {this.menu1}
-          {this.menu3}
-          {this.menu2}
+        <div class="settings">
+          <div class="row">
+            {this.menu1}
+            {this.menu3}
+            {this.menu2}
+          </div>
         </div>
+
       </div>
 		);
 	}
