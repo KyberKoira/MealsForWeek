@@ -98,9 +98,6 @@ class Meal extends React.Component {
   }
   shouldComponentUpdate(nextProps){
     if (nextProps.meal_info.show == false){return true}
-    console.log(nextProps.meal_info.mealCode)
-    console.log(this.encryptMeal(this.state.data.type))
-    console.log(this.props.meal_info.mealCode)
     if(nextProps.meal_info.mealCode == 0 && nextProps.meal_info.show == false){return false}
     if(this.encryptMeal(this.state.data.type) != nextProps.meal_info.mealCode){
       this.getData(nextProps.meal_info.mealCode)
@@ -169,7 +166,7 @@ class Day extends React.Component{
   }
   makeInfo(i) {
     const meal_info = {
-      mealCode: this.props.day_info.meal_types[i-1], show: this.showMeal(i)
+      mealCode: this.props.day_info.meal_types[i-1], show: this.showMeal(i), exclude: this.props.day_info.exclude
     }
 
     return meal_info
@@ -224,22 +221,17 @@ export default class Settings extends React.Component{
           <option>4</option>
         </select>
       </form>
-
-      <form>
-        <p>Energy goal per day(kcal):</p>
-        <input type="text"/>
-      </form>
       </div>)
     this.menu2 = (<div class="col">
       <p>Exclude:</p>
       <div class="radio">
-        <label><input type="radio" name="optradio" value="Option 1" /> Meat</label>
+        <label><input type="radio" name="meat" onChange={this.handleChangeExclude(1)}/> Meat</label>
       </div>
       <div class="radio">
-        <label><input type="radio" name="optradio" value="Option 2" /> Fish</label>
+        <label><input type="radio" name="fish" onChange={this.handleChangeExclude(2)} /> Fish</label>
       </div>
       <div class="radio">
-        <label><input type="radio" name="optradio" value="Option 3" /> Vegetarian</label>
+        <label><input type="radio" name="vege" onChange={this.handleChangeExclude(3)} /> Vegetarian</label>
       </div>
     </div>)
     this.menu3 = (<div class="col">
@@ -255,7 +247,10 @@ export default class Settings extends React.Component{
       type1: 0,
       type2: 0,
       type3: 0,
-      type4: 0
+      type4: 0,
+      meat: true,
+      fish: true,
+      vege: true
     }
   }
   get_type_element(i,func) {
@@ -312,6 +307,19 @@ export default class Settings extends React.Component{
   handleChange_meal_type4 = (event) => {
     this.setState({ type4: this.encryptMeal(event.target.value) })
   }
+  handleChangeExclude = (event,value) => {
+    switch (value) {
+      case 1:
+        this.setState({meat:!this.state.meat})
+        break;
+      case 2:
+        this.setState({meat:!this.state.fish})
+        break;
+      case 3:
+        this.setState({meat:!this.state.vege})
+        break;
+    }
+  }
   checkShow(index, showValue) {
     if (index <= showValue) { return true }
     else { return false }
@@ -324,8 +332,18 @@ export default class Settings extends React.Component{
     typeArray.push(this.state.type4)
     return typeArray;
   }
+  makeExclude() {
+    var excludeArray = []
+    excludeArray.push(this.state.meat)
+    excludeArray.push(this.state.fish)
+    excludeArray.push(this.state.vege)
+    return excludeArray;
+  }
   makeInfo(i) {
-    const day_info = { show_day: this.checkShow(i, this.state.days), show_meals: this.state.meals, meal_types: this.makeTypes() }
+    const day_info = { show_day: this.checkShow(i, this.state.days),
+      show_meals: this.state.meals,
+      meal_types: this.makeTypes(),
+    exclude: this.makeExclude() }
     return day_info
   }
   render() {
