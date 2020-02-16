@@ -18,7 +18,12 @@ function removeA(arr) {
 class Meal extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { data: null }
+    this.state = { data: {
+        meal: "Not Found",
+        source: "Not Found",
+        type: "Not Found",
+        source: "Not Found"
+    } }
   }
   getRndInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -32,7 +37,8 @@ class Meal extends React.Component {
           this.state.data = {
               meal: result["meals"][0]["strMeal"],
               source: result["meals"][0]["strSource"],
-              type: result["meals"][0]["strCategory"]
+              type: result["meals"][0]["strCategory"],
+              source:result["meals"][0]["strSource"]
           }
           console.log(this.state.data)
           this.forceUpdate()
@@ -66,7 +72,8 @@ class Meal extends React.Component {
                 this.state.data = {
                     meal: result["meals"][0]["strMeal"],
                     source: result["meals"][0]["strSource"],
-                    type: result["meals"][0]["strCategory"]
+                    type: result["meals"][0]["strCategory"],
+                    source:result["meals"][0]["strSource"]
                 }
                 this.forceUpdate()
 
@@ -237,10 +244,17 @@ class Meal extends React.Component {
     if (this.props.meal_info.show == true && this.state.data != null) {
 
       return (
+        <div>
         <div class="card-body">
           <p>{this.state.data.type}</p>
           <p>{this.state.data.meal}</p>
         </div>
+        <div class="card-footer">
+        <div class="source">Source: {this.state.data.source}</div>
+        </div>
+
+        </div>
+
       )}
     else {
       return null
@@ -279,9 +293,7 @@ class Day extends React.Component{
           <Meal meal_info={this.makeInfo(3)}/>
           <Meal meal_info={this.makeInfo(4)}/>
 
-					<div class="card-footer">
-						<div class="source">Source:</div>
-					</div>
+
 			</div>
 			</div>
 		);}
@@ -319,13 +331,13 @@ export default class Settings extends React.Component{
     this.menu2 = (<div class="col">
       <p>Exclude:(Random Only)</p>
       <div class="radio">
-        <label><input type="radio" name="meat" onChange={this.handleChangeExclude(1)}/> Meat</label>
+        <label><input type="checkbox" name="meat" onChange={this.handleChangeExclude(1)}/> Meat</label>
       </div>
       <div class="radio">
-        <label><input type="radio" name="fish" onChange={this.handleChangeExclude(2)} /> Fish</label>
+        <label><input type="checkbox" name="fish" onChange={this.handleChangeExclude(2)} /> Fish</label>
       </div>
       <div class="radio">
-        <label><input type="radio" name="vege" onChange={this.handleChangeExclude(3)} /> Vegetarian</label>
+        <label><input type="checkbox" name="vege" onChange={this.handleChangeExclude(3)} /> Vegetarian</label>
       </div>
     </div>)
     this.menu3 = (<div class="col">
