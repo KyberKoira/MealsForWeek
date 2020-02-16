@@ -22,7 +22,8 @@ class Meal extends React.Component {
         meal: "Not Found",
         source: "Not Found",
         type: "Not Found",
-        source: "Not Found"
+        source: "Not Found",
+        exclude: false
     } }
   }
   getRndInteger(min, max) {
@@ -198,6 +199,10 @@ class Meal extends React.Component {
       this.getData(nextProps.meal_info.mealCode)
       return false
     }
+    if(this.encryptMeal(this.state.data.type) != nextProps.meal_info.mealCode){
+      this.getData(nextProps.meal_info.mealCode)
+      return false
+    }
     else {
       return true
     }
@@ -226,6 +231,7 @@ class Meal extends React.Component {
         }
 
         let item = menu[Math.floor(Math.random() * menu.length)]
+
         api_message = "https://www.themealdb.com/api/json/v1/1/filter.php?c=".concat(this.decryptMeal(item))
         this.sendReqWeird(api_message)
       }
@@ -240,7 +246,6 @@ class Meal extends React.Component {
     }
   }
   render() {
-
     if (this.props.meal_info.show == true && this.state.data != null) {
 
       return (
@@ -510,7 +515,6 @@ export default class Settings extends React.Component{
           <div class="row">
             {this.menu1}
             {this.menu3}
-            {this.menu2}
           </div>
         </div>
 
